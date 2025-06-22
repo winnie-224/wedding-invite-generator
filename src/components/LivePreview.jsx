@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 
 function LivePreview({ data }) {
@@ -13,9 +13,12 @@ function LivePreview({ data }) {
     backgroundColor,
     backgroundImage,
     fontFamily,
+    giftQR,
   } = data;
 
   const previewRef = useRef(null);
+  const [showQR, setShowQR] = useState(false);
+  
   const imageURL = image ? URL.createObjectURL(image) : null;
   const bgImageURL = backgroundImage ? URL.createObjectURL(backgroundImage) : null;
 
@@ -60,11 +63,14 @@ function LivePreview({ data }) {
     backgroundSize: 'cover',
     backgroundRepeat: 'no-repeat',
     fontFamily: fontFamily || baseTheme.fontFamily,
+    color: data.fontColor || baseTheme.color,
     padding: '1.5rem',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
     width: '100%',
     minHeight: '500px',
     overflow: 'hidden',
+    position:'relative',
+
   };
 
   return (
@@ -75,18 +81,54 @@ function LivePreview({ data }) {
           <img
             src={imageURL}
             alt="Couple"
-            style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }}
+            style={{ width: '50%', borderRadius: '8px', marginBottom: '1rem' }}
           />
         )}
         <h3 style={{ textAlign: 'center' }}>{coupleNames}</h3>
         <p><strong>Date:</strong> {date}</p>
         <p><strong>Venue:</strong> {venue}</p>
-        <p><strong>Schedule:</strong><br />{schedule}</p>
-        <p><strong>Message for the Guests:</strong><br />
+        <p><strong>Schedule:</strong><br />
+            {schedule.split('\n').map((line, index) => (
+                    <span key={index}>{line}<br /></span>
+            ))}
+        </p>
+        <p>
           {loveStory?.trim()
             ? loveStory
             : "We’re so excited to celebrate our big day with you. Your presence means the world to us!"}
         </p>
+        {giftQR && (
+          <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+            <span
+              onClick={() => setShowQR(prev => !prev)}
+              title={showQR ? 'Hide Gift QR' : 'Click to send a gift'}
+              style={{
+                cursor: 'pointer',
+                fontSize: '1rem',
+                transition: 'transform 0.3s ease',
+                display: 'inline-block',
+              }}
+            >
+            Bless the Couple 💖🎁
+            </span>
+
+            {showQR && (
+              <div style={{ marginTop: '0.5rem' }}>
+                <img
+                  src={URL.createObjectURL(giftQR)}
+                  alt="Gift QR Code"
+                  style={{
+                    maxWidth: '100px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    marginTop: '10px',
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+        
       </div>
 
       <button onClick={downloadAsImage} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
